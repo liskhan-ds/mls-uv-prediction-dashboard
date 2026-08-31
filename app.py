@@ -81,37 +81,7 @@ def load_predictions_data():
         st.error(f"데이터베이스 로딩 오류: {e}")
         return pd.DataFrame([])
 
-@st.cache_data(ttl=300)
-def load_rosters_data(team_name_kr=None):
-    if not os.path.exists(DB_PATH):
-        return pd.DataFrame([])
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        if team_name_kr:
-            df_db = pd.read_sql_query("SELECT * FROM rosters WHERE team_name_kr = ? ORDER BY is_starter DESC, calc_wuv DESC", conn, params=(team_name_kr,))
-        else:
-            df_db = pd.read_sql_query("SELECT * FROM rosters ORDER BY team_name_kr ASC, is_starter DESC, calc_wuv DESC", conn)
-        conn.close()
-        return df_db
-    except Exception as e:
-        st.error(f"로스터 데이터 로딩 오류: {e}")
-        return pd.DataFrame([])
-
-@st.cache_data(ttl=300)
-def load_schedules_data():
-    if not os.path.exists(DB_PATH):
-        return pd.DataFrame([])
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        df_db = pd.read_sql_query("SELECT * FROM schedules ORDER BY id ASC", conn)
-        conn.close()
-        return df_db
-    except Exception as e:
-        st.error(f"일정 데이터 로딩 오류: {e}")
-        return pd.DataFrame([])
-
 df = load_predictions_data()
-rosters_df = load_rosters_data()
 
 if not df.empty and "actual_winner" in df.columns:
     df["total_no"] = range(1, len(df) + 1)
@@ -279,58 +249,8 @@ if not filtered_df.empty:
 
     st.dataframe(display_df, hide_index=True, use_container_width=True)
 
-st.markdown("---")
-
 # -----------------------------------------------------------------------------
-# 6. 구단별 2026 전체 선수단 & WUV 세부 명세 (사용자 요구사항 2 & 3 조망)
-# -----------------------------------------------------------------------------
-st.header("🛡️ 2026 MLS 구단별 선수단 & WUV 세부 분석")
-
-if not rosters_df.empty:
-    team_list = sorted(rosters_df['team_name_kr'].unique())
-    selected_team = st.selectbox("분석할 2026 MLS 구단을 선택하세요:", team_list, index=0)
-    
-    team_roster = load_rosters_data(selected_team)
-    
-    if not team_roster.empty:
-        starters_df = team_roster[team_roster['is_starter'] == 1]
-        subs_df = team_roster[team_roster['is_starter'] == 0]
-        
-        # Calculate summary metrics
-        st_avg_uv = starters_df['calc_uv'].mean() if not starters_df.empty else 0.95
-        sub_avg_uv = subs_df['calc_uv'].mean() if not subs_df.empty else 0.85
-        raw_wuv = 0.85 * st_avg_uv + 0.15 * sub_avg_uv
-        team_wuv = 11.0 + 10.5 * (raw_wuv - 0.835)
-        
-        col_t1, col_t2, col_t3, col_t4 = st.columns(4)
-        col_t1.metric("팀 합성 WUV", f"{team_wuv:.2f} WUV")
-        col_t2.metric("주전 11인 평균 UV", f"{st_avg_uv:.3f}")
-        col_t3.metric("후보 5인 평균 UV", f"{sub_avg_uv:.3f}")
-        col_t4.metric("등록 선수 수", f"{len(team_roster)} 명")
-        
-        tab_st, tab_sub, tab_all = st.tabs(["⭐ 선발 라인업 (11인)", "🔄 교체 후보진 (5인+)", "📋 전체 등록 선수단"])
-        
-        with tab_st:
-            st.markdown("**주전 11인 WUV 기여도 (선수 UV × 포지션 가중치 × 주전 가중치 85%):**")
-            st_disp = starters_df[['player_name', 'position_clean', 'calc_uv', 'position_weight', 'starter_sub_weight', 'calc_wuv']].copy()
-            st_disp.columns = ['선수명', '포지션', '개별 UV', '포지션 가중치', '주전 가중치', '팀 WUV 기여도']
-            st.dataframe(st_disp, hide_index=True, use_container_width=True)
-            
-        with tab_sub:
-            st.markdown("**교체 후보진 WUV 기여도 (선수 UV × 포지션 가중치 × 후보 가중치 15%):**")
-            sub_disp = subs_df[['player_name', 'position_clean', 'calc_uv', 'position_weight', 'starter_sub_weight', 'calc_wuv']].copy()
-            sub_disp.columns = ['선수명', '포지션', '개별 UV', '포지션 가중치', '후보 가중치', '팀 WUV 기여도']
-            st.dataframe(sub_disp, hide_index=True, use_container_width=True)
-            
-        with tab_all:
-            all_disp = team_roster[['player_name', 'position_clean', 'is_starter', 'calc_uv', 'calc_wuv']].copy()
-            all_disp['주전 여부'] = all_disp['is_starter'].apply(lambda x: "주전" if x == 1 else "후보")
-            all_disp = all_disp[['player_name', 'position_clean', '주전 여부', 'calc_uv', 'calc_wuv']]
-            all_disp.columns = ['선수명', '포지션', '구분', '개별 UV', 'WUV 기여도']
-            st.dataframe(all_disp, hide_index=True, use_container_width=True)
-
-# -----------------------------------------------------------------------------
-# 7. 최하단 푸터
+# 6. 최하단 푸터
 # -----------------------------------------------------------------------------
 st.markdown("---")
 st.markdown(
