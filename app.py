@@ -221,22 +221,6 @@ if not filtered_df.empty:
     else:
         col3.metric("주차 적중률", "⏳ 진행 예정")
 
-    display_df = pd.DataFrame()
-    display_df['No.'] = filtered_df['day_no']
-    display_df['경기 일자'] = filtered_df['match_date']
-    display_df['홈 팀'] = filtered_df.apply(lambda r: f"{r['home_team']} ({r['home_total_wuv']:.2f} WUV)" if pd.notna(r.get('home_total_wuv')) else r['home_team'], axis=1)
-    display_df['원정 팀'] = filtered_df.apply(lambda r: f"{r['away_team']} ({r['away_total_wuv']:.2f} WUV)" if pd.notna(r.get('away_total_wuv')) else r['away_team'], axis=1)
-    display_df['예측 결과'] = filtered_df['predicted_winner']
-    display_df['3-Way 확률 [홈%|무%|원정%]'] = filtered_df.apply(
-        lambda r: f"[{r['prob_home']:.1f}% | {r['prob_draw']:.1f}% | {r['prob_away']:.1f}%]", axis=1
-    )
-    display_df['예상 격차(ΔWUV)'] = filtered_df['gap'].apply(lambda x: f"{x:+.2f}")
-    display_df['실제 결과'] = filtered_df.apply(
-        lambda r: f"{int(r['actual_score_home'])} : {int(r['actual_score_away'])} ({r['actual_winner']})" 
-        if (pd.notna(r.get('actual_score_home')) and pd.notna(r.get('actual_winner')) and r['actual_winner'] not in ['', '경기 연기', '경기 취소']) 
-        else (r['actual_winner'] if (pd.notna(r.get('actual_winner')) and r['actual_winner'] != '') else "대기중"), axis=1
-    )
-    
     def get_status_tag(r):
         act = r['actual_winner']
         if not act or pd.isna(act) or act == '':
@@ -244,10 +228,40 @@ if not filtered_df.empty:
         if act in ['경기 연기', '경기 취소', '연기됨', '취소됨']:
             return "🚫 연기/취소"
         return "✅ 정답" if r['is_correct'] == 1 else "❌ 오답"
-        
+
+    display_df = pd.DataFrame()
+    display_df['No.'] = filtered_df['day_no']
+    display_df['경기 일자'] = filtered_df['match_date']
+    display_df['적중 여부'] = filtered_df.apply(get_status_tag, axis=1)
+    display_df['홈 팀'] = filtered_df.apply(lambda r: f"{r['home_team']} ({r['home_total_wuv']:.2f} WUV)" if pd.notna(r.get('home_total_wuv')) else r['home_team'], axis=1)
+    display_df['원정 팀'] = filtered_df.apply(lambda r: f"{r['away_team']} ({r['away_total_wuv']:.2f} WUV)" if pd.notna(r.get('away_total_wuv')) else r['away_team'], axis=1)
+    display_df['예측 결과'] = filtered_df['predicted_winner']
+    display_df['실제 결과'] = filtered_df.apply(
+        lambda r: f"{int(r['actual_score_home'])} : {int(r['actual_score_away'])} ({r['actual_winner']})" 
+        if (pd.notna(r.get('actual_score_home')) and pd.notna(r.get('actual_winner')) and r['actual_winner'] not in ['', '경기 연기', '경기 취소']) 
+        else (r['actual_winner'] if (pd.notna(r.get('actual_winner')) and r['actual_winner'] != '') else "대기중"), axis=1
+    )
+    display_df['3-Way 확률 [홈%|무%|원정%]'] = filtered_df.apply(
+        lambda r: f"[{r['prob_home']:.1f}% | {r['prob_draw']:.1f}% | {r['prob_away']:.1f}%]", axis=1
+    )
+    display_df['예상 격차(ΔWUV)'] = filtered_df['gap'].apply(lambda x: f"{x:+.2f}")
+
     # 테이블 내부 스크롤바가 생기지 않도록 해당 주차 경기 수(최대 32경기)에 맞춰 높이 자동 지정
     calc_height = int((len(display_df) + 1) * 36 + 15)
-    st.dataframe(display_df, height=calc_height, hide_index=True, use_container_width=True)
+    
+    col_config = {
+        "No.": st.column_config.Column(width="small"),
+        "경기 일자": st.column_config.Column(width="small"),
+        "적중 여부": st.column_config.Column(width="small"),
+        "홈 팀": st.column_config.Column(width="medium"),
+        "원정 팀": st.column_config.Column(width="medium"),
+        "예측 결과": st.column_config.Column(width="small"),
+        "실제 결과": st.column_config.Column(width="medium"),
+        "3-Way 확률 [홈%|무%|원정%]": st.column_config.Column(width="medium"),
+        "예상 격차(ΔWUV)": st.column_config.Column(width="small"),
+    }
+    
+    st.dataframe(display_df, height=calc_height, column_config=col_config, hide_index=True, use_container_width=True)
 
 # -----------------------------------------------------------------------------
 # 6. 최하단 푸터
