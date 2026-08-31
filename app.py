@@ -245,9 +245,9 @@ if not filtered_df.empty:
             return "🚫 연기/취소"
         return "✅ 정답" if r['is_correct'] == 1 else "❌ 오답"
         
-    display_df['적중 여부'] = filtered_df.apply(get_status_tag, axis=1)
-
-    st.dataframe(display_df, hide_index=True, use_container_width=True)
+    # 테이블 내부 스크롤바가 생기지 않도록 해당 주차 경기 수(최대 32경기)에 맞춰 높이 자동 지정
+    calc_height = int((len(display_df) + 1) * 36 + 15)
+    st.dataframe(display_df, height=calc_height, hide_index=True, use_container_width=True)
 
 # -----------------------------------------------------------------------------
 # 6. 최하단 푸터
