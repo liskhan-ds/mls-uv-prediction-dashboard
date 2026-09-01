@@ -20,50 +20,22 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 상단 탭 네비게이션 (NBA, MLB, EPL, 라리가, NHL, NFL, MLS 통합 배치)
+# 상단 탭 네비게이션 (7대 종목)
 nav_col1, nav_col2, nav_col3, nav_col4, nav_col5, nav_col6, nav_col7 = st.columns(7)
 with nav_col1:
-    st.link_button(
-        "🏀 NBA ↗", 
-        "https://nba-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
+    st.link_button("🏀 NBA ↗", "https://nba-uv-prediction-dashboard.streamlit.app/", use_container_width=True)
 with nav_col2:
-    st.link_button(
-        "⚾ MLB ↗", 
-        "https://mlb-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
+    st.link_button("⚾ MLB ↗", "https://mlb-uv-prediction-dashboard.streamlit.app/", use_container_width=True)
 with nav_col3:
-    st.link_button(
-        "⚽ EPL ↗", 
-        "https://epl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
+    st.link_button("⚽ EPL ↗", "https://epl-uv-prediction-dashboard.streamlit.app/", use_container_width=True)
 with nav_col4:
-    st.link_button(
-        "⚽ 라리가 ↗", 
-        "https://pml-uv-prediction.streamlit.app/",
-        use_container_width=True
-    )
+    st.link_button("⚽ 라리가 ↗", "https://pml-uv-prediction.streamlit.app/", use_container_width=True)
 with nav_col5:
-    st.link_button(
-        "🏒 NHL ↗", 
-        "https://nhl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
+    st.link_button("🏒 NHL ↗", "https://nhl-uv-prediction-dashboard.streamlit.app/", use_container_width=True)
 with nav_col6:
-    st.link_button(
-        "🏈 NFL ↗", 
-        "https://nfl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
+    st.link_button("🏈 NFL ↗", "https://nfl-uv-prediction-dashboard.streamlit.app/", use_container_width=True)
 with nav_col7:
-    st.button(
-        "⚽ MLS (현재)", 
-        disabled=True,
-        use_container_width=True
-    )
+    st.button("⚽ MLS (현재)", disabled=True, use_container_width=True)
 
 st.divider()
 
