@@ -22,6 +22,8 @@ st.set_page_config(
 
 # 상단 탭 네비게이션 (7대 종목)
 # 상단 탭 네비게이션 (7대 종목)
+# Top Navigation Bar (7 Leagues)
+# Top Navigation Bar (7 Leagues)
 nav_cols = st.columns(7)
 with nav_cols[0]:
     st.link_button("🏀 NBA ↗", "https://nba-uv-prediction.streamlit.app/", use_container_width=True)
@@ -30,13 +32,13 @@ with nav_cols[1]:
 with nav_cols[2]:
     st.link_button("⚽ EPL ↗", "https://epl-uv-prediction.streamlit.app/", use_container_width=True)
 with nav_cols[3]:
-    st.link_button("⚽ 라리가 ↗", "https://pml-uv-prediction.streamlit.app/", use_container_width=True)
+    st.link_button("⚽ La Liga ↗", "https://llg-uv-prediction.streamlit.app/", use_container_width=True)
 with nav_cols[4]:
     st.link_button("🏒 NHL ↗", "https://nhl-uv-prediction.streamlit.app/", use_container_width=True)
 with nav_cols[5]:
     st.link_button("🏈 NFL ↗", "https://nfl-uv-prediction.streamlit.app/", use_container_width=True)
 with nav_cols[6]:
-    st.button("⚽ MLS (현재)", disabled=True, use_container_width=True)
+    st.button("⚽ MLS (Current)", disabled=True, use_container_width=True)
 
 st.divider()
 
