@@ -10,54 +10,54 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "mls_data.db")
 ROSTERS_PATH = os.path.join(BASE_DIR, "rosters_2026.json")
 
-# MLS 30개 구단 영문 -> 한글 매핑 (2026 시즌 기준)
+# Clean English Team Name Normalization Map (No Korean translations)
 TEAM_NAME_MAP = {
-    "Inter Miami CF": "인터 마이애미",
-    "Inter Miami": "인터 마이애미",
+    "Inter Miami CF": "Inter Miami CF",
+    "Inter Miami": "Inter Miami CF",
     "LAFC": "LAFC",
     "Los Angeles Football Club": "LAFC",
-    "LA Galaxy": "LA 갤럭시",
-    "Los Angeles Galaxy": "LA 갤럭시",
-    "Columbus Crew": "콜럼버스 크루",
-    "FC Cincinnati": "FC 신시내티",
-    "Seattle Sounders FC": "시애틀 사운더스",
-    "Seattle Sounders": "시애틀 사운더스",
-    "Real Salt Lake": "리얼 솔트레이크",
-    "Colorado Rapids": "콜로라도 래피즈",
-    "Houston Dynamo FC": "휴스턴 다이나모",
-    "Houston Dynamo": "휴스턴 다이나모",
-    "Minnesota United FC": "미네소타 유나이티드",
-    "Minnesota United": "미네소타 유나이티드",
-    "Vancouver Whitecaps": "밴쿠버 화이트캡스",
-    "Vancouver Whitecaps FC": "밴쿠버 화이트캡스",
-    "Portland Timbers": "포틀랜드 팀버스",
-    "Sporting Kansas City": "스포팅 캔자스시티",
-    "Sporting KC": "스포팅 캔자스시티",
-    "St. Louis CITY SC": "세인트루이스 시티",
-    "St. Louis City": "세인트루이스 시티",
-    "FC Dallas": "FC 댈러스",
-    "San Jose Earthquakes": "산호세 어스퀘이크스",
-    "Philadelphia Union": "필라델피아 유니온",
-    "Red Bull New York": "뉴욕 레드불스",
-    "New York Red Bulls": "뉴욕 레드불스",
-    "New York City FC": "뉴욕 시티 FC",
-    "NYCFC": "뉴욕 시티 FC",
-    "Orlando City SC": "올랜도 시티",
-    "Orlando City": "올랜도 시티",
-    "Charlotte FC": "샬럿 FC",
-    "Atlanta United FC": "애틀랜타 유나이티드",
-    "Atlanta United": "애틀랜타 유나이티드",
-    "Nashville SC": "내시빌 SC",
-    "CF Montréal": "CF 몽레알",
-    "CF Montreal": "CF 몽레알",
-    "Toronto FC": "토론토 FC",
-    "D.C. United": "DC 유나이티드",
-    "DC United": "DC 유나이티드",
-    "New England Revolution": "뉴잉글랜드 레볼루션",
-    "Chicago Fire FC": "시카고 파이어",
-    "Chicago Fire": "시카고 파이어",
-    "Austin FC": "오스틴 FC",
-    "San Diego FC": "샌디에이고 FC",
+    "LA Galaxy": "LA Galaxy",
+    "Los Angeles Galaxy": "LA Galaxy",
+    "Columbus Crew": "Columbus Crew",
+    "FC Cincinnati": "FC Cincinnati",
+    "Seattle Sounders FC": "Seattle Sounders FC",
+    "Seattle Sounders": "Seattle Sounders FC",
+    "Real Salt Lake": "Real Salt Lake",
+    "Colorado Rapids": "Colorado Rapids",
+    "Houston Dynamo FC": "Houston Dynamo FC",
+    "Houston Dynamo": "Houston Dynamo FC",
+    "Minnesota United FC": "Minnesota United FC",
+    "Minnesota United": "Minnesota United FC",
+    "Vancouver Whitecaps": "Vancouver Whitecaps",
+    "Vancouver Whitecaps FC": "Vancouver Whitecaps",
+    "Portland Timbers": "Portland Timbers",
+    "Sporting Kansas City": "Sporting Kansas City",
+    "Sporting KC": "Sporting Kansas City",
+    "St. Louis CITY SC": "St. Louis CITY SC",
+    "St. Louis City": "St. Louis CITY SC",
+    "FC Dallas": "FC Dallas",
+    "San Jose Earthquakes": "San Jose Earthquakes",
+    "Philadelphia Union": "Philadelphia Union",
+    "Red Bull New York": "Red Bull New York",
+    "New York Red Bulls": "Red Bull New York",
+    "New York City FC": "New York City FC",
+    "NYCFC": "New York City FC",
+    "Orlando City SC": "Orlando City SC",
+    "Orlando City": "Orlando City SC",
+    "Charlotte FC": "Charlotte FC",
+    "Atlanta United FC": "Atlanta United FC",
+    "Atlanta United": "Atlanta United FC",
+    "Nashville SC": "Nashville SC",
+    "CF Montréal": "CF Montréal",
+    "CF Montreal": "CF Montréal",
+    "Toronto FC": "Toronto FC",
+    "D.C. United": "D.C. United",
+    "DC United": "D.C. United",
+    "New England Revolution": "New England Revolution",
+    "Chicago Fire FC": "Chicago Fire FC",
+    "Chicago Fire": "Chicago Fire FC",
+    "Austin FC": "Austin FC",
+    "San Diego FC": "San Diego FC",
 }
 
 def normalize_team_name(raw_name):
@@ -68,7 +68,7 @@ def normalize_team_name(raw_name):
             return val
     return raw_name
 
-# 2026 MLS 주요 스타 선수 평점 및 90분당 득점 수치 (OFFICIAL_STATS)
+# Official Player Ratings & Goals per 90 Stats (2026 MLS)
 OFFICIAL_STATS = {
     "Lionel Messi": (7.95, 0.85),
     "Luis Suárez": (7.65, 0.65),
@@ -102,11 +102,11 @@ OFFICIAL_STATS = {
     "Raúl Ruidíaz": (7.20, 0.35),
 }
 
-# 2026 MLS 팀별 경기당 평균 득점 및 실점
+# 2026 MLS Team Average Goals & Conceded Metrics
 TEAM_GOALS_PER_GAME = {
     "Inter Miami CF": 2.2, "LAFC": 2.0, "Columbus Crew": 1.9, "LA Galaxy": 1.8,
     "FC Cincinnati": 1.7, "Real Salt Lake": 1.6, "Colorado Rapids": 1.5, "Seattle Sounders FC": 1.5,
-    "Portland Timbers": 1.5, "New York Red Bulls": 1.4, "New York City FC": 1.4, "Orlando City SC": 1.4,
+    "Portland Timbers": 1.5, "Red Bull New York": 1.4, "New York City FC": 1.4, "Orlando City SC": 1.4,
     "Houston Dynamo FC": 1.3, "Minnesota United FC": 1.3, "Vancouver Whitecaps": 1.3, "Charlotte FC": 1.25,
     "Philadelphia Union": 1.25, "St. Louis CITY SC": 1.2, "Nashville SC": 1.15, "Atlanta United FC": 1.2,
     "D.C. United": 1.1, "FC Dallas": 1.1, "San Diego FC": 1.1, "San Jose Earthquakes": 1.0,
@@ -117,7 +117,7 @@ TEAM_GOALS_PER_GAME = {
 TEAM_CONCEDED_PER_GAME = {
     "Inter Miami CF": 1.3, "LAFC": 1.1, "Columbus Crew": 1.0, "LA Galaxy": 1.3,
     "FC Cincinnati": 1.0, "Real Salt Lake": 1.2, "Colorado Rapids": 1.3, "Seattle Sounders FC": 0.9,
-    "Portland Timbers": 1.4, "New York Red Bulls": 0.9, "New York City FC": 1.1, "Orlando City SC": 1.15,
+    "Portland Timbers": 1.4, "Red Bull New York": 0.9, "New York City FC": 1.1, "Orlando City SC": 1.15,
     "Houston Dynamo FC": 1.1, "Minnesota United FC": 1.2, "Vancouver Whitecaps": 1.15, "Charlotte FC": 1.1,
     "Philadelphia Union": 1.2, "St. Louis CITY SC": 1.35, "Nashville SC": 1.1, "Atlanta United FC": 1.3,
     "D.C. United": 1.4, "FC Dallas": 1.3, "San Diego FC": 1.25, "San Jose Earthquakes": 1.6,
@@ -131,9 +131,6 @@ LOW_POSSESSION_TEAMS = [
 ]
 
 def calculate_player_uv(player_data, team_name=""):
-    """
-    선수 개별 Unit Value (UV) 산출 함수
-    """
     p_name_raw = player_data.get("name", "")
     position = player_data.get("pos", "M")
     
@@ -191,16 +188,12 @@ def calculate_player_uv(player_data, team_name=""):
     return round(min(max(raw_uv, 0.4), 2.0), 3)
 
 def get_team_roster(team_name):
-    """
-    2026 시즌 구단별 선수단 (선발 11명 + 교체 5명) 추출
-    """
     if not os.path.exists(ROSTERS_PATH):
         return {"starters": [], "subs": []}
         
     with open(ROSTERS_PATH, "r", encoding="utf-8") as f:
         rosters = json.load(f)
         
-    # Match exact or normalized team name
     plist = rosters.get(team_name, [])
     if not plist:
         for k, v in rosters.items():
@@ -220,7 +213,6 @@ def get_team_roster(team_name):
     fws = sorted([p for p in available if p.get("pos") in ["F", "FW", "Forward"]], key=lambda x: x["calc_uv"], reverse=True)
     
     starters = gks[:1] + dfs[:4] + mfs[:3] + fws[:3]
-    # If insufficient starters, pad from available
     if len(starters) < 11:
         used_names = {p["name"] for p in starters}
         remaining = [p for p in available if p["name"] not in used_names]
@@ -233,37 +225,23 @@ def get_team_roster(team_name):
     return {"starters": starters, "subs": subs}
 
 def calculate_wuv(team_name):
-    """
-    사용자 지침 #3 구현:
-    선수 UV를 구한 후 (포지션 가중치 × 주전/비주전 가중치)를 곱하여 팀 WUV 합성 계산
-    """
     roster = get_team_roster(team_name)
     starters = roster.get("starters", [])
     subs = roster.get("subs", [])
-    
-    # Weights definition:
-    # Starter total weight = 0.85, Sub total weight = 0.15
-    # Position weights for starters (GK: 0.10, DF: 0.30, MF: 0.30, FW: 0.30)
     
     pos_weights = {"GK": 0.10, "DF": 0.30, "MF": 0.30, "FW": 0.30}
     
     starters_detail = []
     subs_detail = []
     
-    # Calculate starter contributions
     st_weighted_sum = 0.0
     for p in starters:
         uv = calculate_player_uv(p, team_name)
         pos = p.get("pos", "M")
         pos_clean = "GK" if pos in ["G","GK","Goalkeeper"] else ("DF" if pos in ["D","DF","Defender"] else ("MF" if pos in ["M","MF","Midfielder"] else "FW"))
         
-        # Position weight per player (divided by count of that position in starters)
-        # 1 GK, 4 DF, 3 MF, 3 FW default
         count_in_pos = max(sum(1 for sp in starters if ("GK" if sp.get("pos") in ["G","GK","Goalkeeper"] else ("DF" if sp.get("pos") in ["D","DF","Defender"] else ("MF" if sp.get("pos") in ["M","MF","Midfielder"] else "FW"))) == pos_clean), 1)
         p_pos_weight = pos_weights[pos_clean] / count_in_pos
-        p_st_weight = 0.85 / len(starters) if starters else 0.85
-        
-        # Player WUV contribution = UV * position_weight_factor * starter_factor
         wuv_contrib = uv * p_pos_weight * 1.0 * 0.85
         st_weighted_sum += wuv_contrib
         
@@ -301,7 +279,6 @@ def calculate_wuv(team_name):
     raw_wuv = (0.85 * st_avg + 0.15 * sub_avg)
     team_wuv = round(11.0 + 10.5 * (raw_wuv - 0.835), 2)
     
-    # Position breakdowns
     pos_sums = {"GK": 0.0, "DF": 0.0, "MF": 0.0, "FW": 0.0}
     for p in starters_detail:
         pos_sums[p["pos"]] += p["uv"]
@@ -325,9 +302,6 @@ def calculate_wuv(team_name):
     }
 
 def get_match_prediction(home_team, away_team):
-    """
-    3-Way (승/무/패) Softmax 확률 계산 및 예상 스코어 산출
-    """
     h_info = calculate_wuv(home_team)
     a_info = calculate_wuv(away_team)
     
@@ -336,17 +310,17 @@ def get_match_prediction(home_team, away_team):
     
     gap = h_total - a_total
     
-    home_kr = normalize_team_name(home_team)
-    away_kr = normalize_team_name(away_team)
+    home_name = normalize_team_name(home_team)
+    away_name = normalize_team_name(away_team)
     
     if abs(gap) <= 0.40:
-        winner = "무승부"
+        winner = "Draw"
         code = "DRAW"
     elif gap > 0.40:
-        winner = f"{home_kr} 승"
+        winner = f"{home_name} Win"
         code = "HOME"
     else:
-        winner = f"{away_kr} 승"
+        winner = f"{away_name} Win"
         code = "AWAY"
         
     z = gap
@@ -387,9 +361,6 @@ def get_match_prediction(home_team, away_team):
     }
 
 def populate_rosters_db(conn):
-    """
-    rosters 테이블에 2026 MLS 30개 구단 전체 선수단 DB 구축
-    """
     if not os.path.exists(ROSTERS_PATH):
         return
         
@@ -401,7 +372,7 @@ def populate_rosters_db(conn):
     
     count = 0
     for t_name, plist in rosters_data.items():
-        t_kr = normalize_team_name(t_name)
+        t_clean = normalize_team_name(t_name)
         wuv_info = calculate_wuv(t_name)
         st_names = {p["name"] for p in wuv_info["starters_detail"]}
         
@@ -422,18 +393,15 @@ def populate_rosters_db(conn):
                 is_starter, rating, goals_per90, calc_uv, position_weight, starter_sub_weight, calc_wuv, season
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                t_name, t_kr, p_name, pos, pos_clean,
+                t_name, t_clean, p_name, pos, pos_clean,
                 is_st, 6.80, 0.0, uv, pos_w, st_sub_w, calc_wuv, 2026
             ))
             count += 1
             
     conn.commit()
-    print(f"✅ rosters 테이블 구축 완료: {count} 명 선수 데이터 저장 (2026 Season)")
+    print(f"✅ rosters table updated: {count} players saved (2026 Season)")
 
 def run_pipeline():
-    """
-    2026 MLS 정규시즌 전 경기 스코어보드 수집 및 predictions / schedules DB 구축
-    """
     url = "https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=20260201-20261130&limit=1000"
     headers = {"User-Agent": "Mozilla/5.0"}
     
@@ -441,27 +409,23 @@ def run_pipeline():
         resp = requests.get(url, headers=headers, timeout=15).json()
         events = resp.get("events", [])
     except Exception as e:
-        print(f"⚠️ ESPN API 요청 오류: {e}")
+        print(f"⚠️ ESPN API error: {e}")
         return
 
     if not events:
-        print("⚠️ 2026 MLS 경기 데이터가 없습니다.")
+        print("⚠️ No 2026 MLS match events found.")
         return
         
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # Build rosters table
     populate_rosters_db(conn)
     
-    # Clean tables for 2026 season rebuild
     cursor.execute("DELETE FROM predictions")
     cursor.execute("DELETE FROM schedules")
     
-    # Process events and assign week numbers based on ISO calendar week
     events.sort(key=lambda x: x["date"])
     
-    # Calculate week groupings
     date_objs = [datetime.fromisoformat(e["date"].replace("Z", "+00:00")) for e in events]
     iso_weeks = [d.isocalendar()[1] for d in date_objs]
     min_week = min(iso_weeks) if iso_weeks else 1
@@ -495,13 +459,13 @@ def run_pipeline():
         
         if is_completed and act_sc_h is not None and act_sc_a is not None:
             if act_sc_h > act_sc_a:
-                act_winner = f"{h_team} 승"
+                act_winner = f"{h_team} Win"
             elif act_sc_a > act_sc_h:
-                act_winner = f"{a_team} 승"
+                act_winner = f"{a_team} Win"
             else:
-                act_winner = "무승부"
+                act_winner = "Draw"
         elif is_cancelled:
-            act_winner = "경기 연기"
+            act_winner = "Postponed"
         else:
             act_winner = None
             
@@ -518,7 +482,6 @@ def run_pipeline():
             
         mid = f"2026_MLS_{idx}"
         
-        # 1. Insert into predictions
         cursor.execute("""
         INSERT INTO predictions (
             match_id, round_name, home_team, away_team, match_date,
@@ -535,7 +498,6 @@ def run_pipeline():
             act_sc_h, act_sc_a, act_winner, is_corr
         ))
         
-        # 2. Insert into schedules
         cursor.execute("""
         INSERT INTO schedules (
             match_id, week_name, match_date, home_team, away_team, status, season
@@ -546,8 +508,8 @@ def run_pipeline():
 
     conn.commit()
     conn.close()
-    print(f"✅ 2026 MLS 파이프라인 완료! 총 {len(events)}개 경기 predictions & schedules DB 반영 완료.")
+    print(f"✅ 2026 MLS Pipeline Complete! {len(events)} matches processed into predictions & schedules DB.")
 
 if __name__ == "__main__":
-    print("🚀 2026 MLS AI 승부예측 파이프라인 시작...", flush=True)
+    print("🚀 2026 MLS AI Match Prediction Pipeline starting...", flush=True)
     run_pipeline()
