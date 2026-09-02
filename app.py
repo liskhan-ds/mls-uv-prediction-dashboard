@@ -21,49 +21,21 @@ st.set_page_config(
 )
 
 # Unified Top Navigation Bar (7 Sports: NBA, MLB, EPL, La Liga, NHL, NFL, MLS)
-nav_col1, nav_col2, nav_col3, nav_col4, nav_col5, nav_col6, nav_col7 = st.columns(7)
-with nav_col1:
-    st.link_button(
-        "🏀 NBA ↗", 
-        "https://nba-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col2:
-    st.link_button(
-        "⚾ MLB ↗", 
-        "https://mlb-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col3:
-    st.link_button(
-        "⚽ EPL ↗", 
-        "https://epl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col4:
-    st.link_button(
-        "⚽ La Liga ↗", 
-        "https://llg-uv-prediction.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col5:
-    st.link_button(
-        "🏒 NHL ↗", 
-        "https://nhl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col6:
-    st.link_button(
-        "🏈 NFL ↗", 
-        "https://nfl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col7:
-    st.button(
-        "⚽ MLS (Current)", 
-        disabled=True,
-        use_container_width=True
-    )
+nav_cols = st.columns(7)
+with nav_cols[0]:
+    st.link_button("🏀 NBA ↗", "https://nba-uv-prediction.streamlit.app/", use_container_width=True)
+with nav_cols[1]:
+    st.link_button("⚾ MLB ↗", "https://mlb-uv-prediction.streamlit.app/", use_container_width=True)
+with nav_cols[2]:
+    st.link_button("⚽ EPL ↗", "https://epl-uv-prediction.streamlit.app/", use_container_width=True)
+with nav_cols[3]:
+    st.link_button("⚽ La Liga ↗", "https://llg-uv-prediction.streamlit.app/", use_container_width=True)
+with nav_cols[4]:
+    st.link_button("🏒 NHL ↗", "https://nhl-uv-prediction.streamlit.app/", use_container_width=True)
+with nav_cols[5]:
+    st.link_button("🏈 NFL ↗", "https://nfl-uv-prediction.streamlit.app/", use_container_width=True)
+with nav_cols[6]:
+    st.button("⚽ MLS (Current)", disabled=True, use_container_width=True)
 
 st.divider()
 
