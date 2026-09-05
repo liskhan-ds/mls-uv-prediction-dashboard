@@ -147,6 +147,9 @@ if not stats_df.empty:
         correct_games=('is_correct', 'sum')
     ).reset_index()
 
+    round_stats['week_num'] = round_stats[group_col].apply(extract_week_num)
+    round_stats = round_stats.sort_values('week_num').reset_index(drop=True)
+
     round_stats['accuracy'] = (round_stats['correct_games'] / round_stats['total_games']) * 100
     
     def get_bar_color(acc):
@@ -163,9 +166,11 @@ if not stats_df.empty:
         axis=1
     )
 
-    round_stats_7d = round_stats.tail(10)
+    round_stats_chart = round_stats.tail(12)
 
-    base = alt.Chart(round_stats_7d).encode(x=alt.X(group_col, title='MLS Gameweek', sort=None))
+    base = alt.Chart(round_stats_chart).encode(
+        x=alt.X(group_col, title='MLS Gameweek', sort=list(round_stats_chart[group_col]))
+    )
     bars = base.mark_bar().encode(
         y=alt.Y('accuracy', title='Accuracy (%)', scale=alt.Scale(domain=[0, 110])),
         color=alt.Color('bar_color', scale=None),
