@@ -440,6 +440,9 @@ def run_pipeline():
     tz_et = ZoneInfo("America/New_York")
     tz_kst = ZoneInfo("Asia/Seoul")
     
+    # Sequential Round Assigner (Round 1 ~ Round 34, ~15 matches per round)
+    team_game_count = {}
+    
     for idx, e in enumerate(events, 1):
         comp = e.get("competitions", [{}])[0]
         competitors = comp.get("competitors", [])
@@ -455,6 +458,15 @@ def run_pipeline():
         h_team = normalize_team_name(h_team_raw)
         a_team = normalize_team_name(a_team_raw)
         
+        # Calculate sequential round number based on team match counts
+        h_cnt = team_game_count.get(h_team, 0) + 1
+        a_cnt = team_game_count.get(a_team, 0) + 1
+        team_game_count[h_team] = h_cnt
+        team_game_count[a_team] = a_cnt
+        
+        round_num = max(h_cnt, a_cnt)
+        week_label = f"Round {round_num} (Gameweek {round_num})"
+        
         date_raw = e.get("date", "")
         dt_utc = datetime.fromisoformat(date_raw.replace("Z", "+00:00"))
         
@@ -464,9 +476,6 @@ def run_pipeline():
         
         match_date_et = dt_et.strftime("%Y-%m-%d %H:%M")
         match_date_kst = dt_kst.strftime("%Y-%m-%d %H:%M")
-        
-        week_num = dt_utc.isocalendar()[1] - min_week + 1
-        week_label = f"Round {week_num} (Gameweek {week_num})"
         
         status_type = e.get("status", {}).get("type", {}).get("name", "")
         is_completed = (status_type == "STATUS_FULL_TIME")
