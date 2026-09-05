@@ -5,12 +5,13 @@ import json
 import pandas as pd
 import numpy as np
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "mls_data.db")
 ROSTERS_PATH = os.path.join(BASE_DIR, "rosters_2026.json")
 
-# Clean English Team Name Normalization Map (No Korean translations)
+# Clean English Team Name Normalization Map
 TEAM_NAME_MAP = {
     "Inter Miami CF": "Inter Miami CF",
     "Inter Miami": "Inter Miami CF",
@@ -102,7 +103,6 @@ OFFICIAL_STATS = {
     "Raúl Ruidíaz": (7.20, 0.35),
 }
 
-# 2026 MLS Team Average Goals & Conceded Metrics
 TEAM_GOALS_PER_GAME = {
     "Inter Miami CF": 2.2, "LAFC": 2.0, "Columbus Crew": 1.9, "LA Galaxy": 1.8,
     "FC Cincinnati": 1.7, "Real Salt Lake": 1.6, "Colorado Rapids": 1.5, "Seattle Sounders FC": 1.5,
@@ -419,6 +419,13 @@ def run_pipeline():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
+    cursor.execute("DROP TABLE IF EXISTS predictions")
+    cursor.execute("DROP TABLE IF EXISTS schedules")
+    
+    # Ensure init_mls_db tables exist with updated schema
+    import init_mls_db
+    init_mls_db.create_tables()
+    
     populate_rosters_db(conn)
     
     cursor.execute("DELETE FROM predictions")
@@ -429,6 +436,9 @@ def run_pipeline():
     date_objs = [datetime.fromisoformat(e["date"].replace("Z", "+00:00")) for e in events]
     iso_weeks = [d.isocalendar()[1] for d in date_objs]
     min_week = min(iso_weeks) if iso_weeks else 1
+    
+    tz_et = ZoneInfo("America/New_York")
+    tz_kst = ZoneInfo("Asia/Seoul")
     
     for idx, e in enumerate(events, 1):
         comp = e.get("competitions", [{}])[0]
@@ -446,9 +456,17 @@ def run_pipeline():
         a_team = normalize_team_name(a_team_raw)
         
         date_raw = e.get("date", "")
-        dt_obj = datetime.fromisoformat(date_raw.replace("Z", "+00:00"))
-        week_num = dt_obj.isocalendar()[1] - min_week + 1
-        week_label = f"Week {week_num} (Matchweek {week_num})"
+        dt_utc = datetime.fromisoformat(date_raw.replace("Z", "+00:00"))
+        
+        # Convert to US Eastern (ET) and KST time strings
+        dt_et = dt_utc.astimezone(tz_et)
+        dt_kst = dt_utc.astimezone(tz_kst)
+        
+        match_date_et = dt_et.strftime("%Y-%m-%d %H:%M")
+        match_date_kst = dt_kst.strftime("%Y-%m-%d %H:%M")
+        
+        week_num = dt_utc.isocalendar()[1] - min_week + 1
+        week_label = f"Round {week_num} (Gameweek {week_num})"
         
         status_type = e.get("status", {}).get("type", {}).get("name", "")
         is_completed = (status_type == "STATUS_FULL_TIME")
@@ -485,13 +503,15 @@ def run_pipeline():
         cursor.execute("""
         INSERT INTO predictions (
             match_id, round_name, home_team, away_team, match_date,
+            match_date_et, match_date_kst,
             home_wuv, away_wuv, home_total_wuv, away_total_wuv,
             gap, predicted_winner, prob_home, prob_draw, prob_away,
             score_home, score_away,
             actual_score_home, actual_score_away, actual_winner, is_correct
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             mid, week_label, h_team, a_team, date_raw[:10],
+            match_date_et, match_date_kst,
             pred["home_wuv"]["team_wuv"], pred["away_wuv"]["team_wuv"], pred["h_total"], pred["a_total"],
             pred["gap"], pred_winner, pred["p_home"], pred["p_draw"], pred["p_away"],
             pred["sc_h"], pred["sc_a"],
@@ -508,7 +528,7 @@ def run_pipeline():
 
     conn.commit()
     conn.close()
-    print(f"✅ 2026 MLS Pipeline Complete! {len(events)} matches processed into predictions & schedules DB.")
+    print(f"✅ 2026 MLS Pipeline Complete! {len(events)} matches processed with US Eastern & KST times.")
 
 if __name__ == "__main__":
     print("🚀 2026 MLS AI Match Prediction Pipeline starting...", flush=True)

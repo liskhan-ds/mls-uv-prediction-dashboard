@@ -17,6 +17,8 @@ def create_tables():
         home_team TEXT NOT NULL,
         away_team TEXT NOT NULL,
         match_date TEXT NOT NULL,
+        match_date_et TEXT NOT NULL,
+        match_date_kst TEXT NOT NULL,
         home_wuv REAL NOT NULL,
         away_wuv REAL NOT NULL,
         home_total_wuv REAL NOT NULL,
@@ -75,7 +77,7 @@ def create_tables():
     
     conn.commit()
     conn.close()
-    print(f"✅ mls_data.db 데이터베이스 및 테이블(predictions, rosters, schedules) 생성 완료: {DB_PATH}")
+    print(f"✅ mls_data.db initialized with predictions, rosters, and schedules tables.")
 
 if __name__ == "__main__":
     create_tables()

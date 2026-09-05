@@ -21,21 +21,49 @@ st.set_page_config(
 )
 
 # Unified Top Navigation Bar (7 Sports: NBA, MLB, EPL, La Liga, NHL, NFL, MLS)
-nav_cols = st.columns(7)
-with nav_cols[0]:
-    st.link_button("🏀 NBA ↗", "https://nba-uv-prediction.streamlit.app/", use_container_width=True)
-with nav_cols[1]:
-    st.link_button("⚾ MLB ↗", "https://mlb-uv-prediction.streamlit.app/", use_container_width=True)
-with nav_cols[2]:
-    st.link_button("⚽ EPL ↗", "https://epl-uv-prediction.streamlit.app/", use_container_width=True)
-with nav_cols[3]:
-    st.link_button("⚽ La Liga ↗", "https://llg-uv-prediction.streamlit.app/", use_container_width=True)
-with nav_cols[4]:
-    st.link_button("🏒 NHL ↗", "https://nhl-uv-prediction.streamlit.app/", use_container_width=True)
-with nav_cols[5]:
-    st.link_button("🏈 NFL ↗", "https://nfl-uv-prediction.streamlit.app/", use_container_width=True)
-with nav_cols[6]:
-    st.button("⚽ MLS (Current)", disabled=True, use_container_width=True)
+nav_col1, nav_col2, nav_col3, nav_col4, nav_col5, nav_col6, nav_col7 = st.columns(7)
+with nav_col1:
+    st.link_button(
+        "🏀 NBA ↗", 
+        "https://nba-uv-prediction-dashboard.streamlit.app/",
+        use_container_width=True
+    )
+with nav_col2:
+    st.link_button(
+        "⚾ MLB ↗", 
+        "https://mlb-uv-prediction-dashboard.streamlit.app/",
+        use_container_width=True
+    )
+with nav_col3:
+    st.link_button(
+        "⚽ EPL ↗", 
+        "https://epl-uv-prediction-dashboard.streamlit.app/",
+        use_container_width=True
+    )
+with nav_col4:
+    st.link_button(
+        "⚽ La Liga ↗", 
+        "https://llg-uv-prediction.streamlit.app/",
+        use_container_width=True
+    )
+with nav_col5:
+    st.link_button(
+        "🏒 NHL ↗", 
+        "https://nhl-uv-prediction-dashboard.streamlit.app/",
+        use_container_width=True
+    )
+with nav_col6:
+    st.link_button(
+        "🏈 NFL ↗", 
+        "https://nfl-uv-prediction-dashboard.streamlit.app/",
+        use_container_width=True
+    )
+with nav_col7:
+    st.button(
+        "⚽ MLS (Current)", 
+        disabled=True,
+        use_container_width=True
+    )
 
 st.divider()
 
@@ -101,14 +129,16 @@ else:
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 4. Weekly (Matchweek) Prediction Performance Chart
+# 4. Weekly (Gameweek) Prediction Performance Chart
 # -----------------------------------------------------------------------------
-st.header("📈 Weekly (Matchweek) Prediction Performance")
+st.header("📈 Gameweek Prediction Performance")
 
 def extract_week_num(text):
     import re
-    m = re.search(r'Week\s*(\d+)', str(text))
-    return int(m.group(1)) if m else 0
+    m = re.search(r'Round\s*(\d+)|Week\s*(\d+)', str(text))
+    if m:
+        return int(m.group(1) or m.group(2))
+    return 0
 
 if not stats_df.empty:
     group_col = 'round_name' if 'round_name' in stats_df.columns else 'match_date'
@@ -135,7 +165,7 @@ if not stats_df.empty:
 
     round_stats_7d = round_stats.tail(10)
 
-    base = alt.Chart(round_stats_7d).encode(x=alt.X(group_col, title='2026 MLS Matchweek', sort=None))
+    base = alt.Chart(round_stats_7d).encode(x=alt.X(group_col, title='MLS Gameweek', sort=None))
     bars = base.mark_bar().encode(
         y=alt.Y('accuracy', title='Accuracy (%)', scale=alt.Scale(domain=[0, 110])),
         color=alt.Color('bar_color', scale=None),
@@ -146,7 +176,7 @@ if not stats_df.empty:
     )
     st.altair_chart((bars + text).properties(height=320), use_container_width=True)
 else:
-    st.info("💡 2026 season full schedule built in database. Matchweek accuracy will aggregate as match results complete.")
+    st.info("💡 2026 season full schedule built in database. Gameweek accuracy will aggregate as match results complete.")
 
 st.markdown("""
 <div style="text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 8px; line-height: 1.5; font-size: 14px;">
@@ -163,9 +193,9 @@ st.markdown("""
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 5. Weekly Matchweek Report & Prediction Results Table
+# 5. Gameweek Report & Prediction Results Table (Matching La Liga Layout)
 # -----------------------------------------------------------------------------
-st.header("📋 2026 Season Matchweek Report & Prediction Results")
+st.header("📋 2026 Season Gameweek Report & Prediction Results")
 
 if not df.empty and 'round_name' in df.columns:
     unique_rounds = sorted(df['round_name'].unique(), key=extract_week_num, reverse=False)
@@ -178,7 +208,7 @@ if not df.empty and 'round_name' in df.columns:
         if target_round in unique_rounds:
             default_idx = unique_rounds.index(target_round)
             
-    selected_round = st.selectbox("Select 2026 Season Matchweek:", unique_rounds, index=default_idx)
+    selected_round = st.selectbox("Select Gameweek:", unique_rounds, index=default_idx)
     filtered_df = df[df['round_name'] == selected_round].copy().reset_index(drop=True)
 else:
     filtered_df = pd.DataFrame([])
@@ -189,15 +219,15 @@ if not filtered_df.empty:
     completed_in_round = filtered_df[filtered_df['actual_winner'].notna() & (filtered_df['actual_winner'] != '') & (~filtered_df['actual_winner'].isin(['Postponed', 'Canceled', 'Postponed/Canceled']))]
     
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Matches in Week", f"{len(filtered_df)} Matches")
+    col1.metric("Gameweek Total Matches", f"{len(filtered_df)} Matches")
     col2.metric("Completed Matches", f"{len(completed_in_round)} Matches")
     
     if not completed_in_round.empty:
         corr_cnt = int(completed_in_round['is_correct'].sum())
         acc = (corr_cnt / len(completed_in_round)) * 100
-        col3.metric("Week Accuracy", f"{acc:.1f}% ({corr_cnt}/{len(completed_in_round)})")
+        col3.metric("Gameweek Accuracy", f"{acc:.1f}% ({corr_cnt}/{len(completed_in_round)})")
     else:
-        col3.metric("Week Accuracy", "⏳ Scheduled")
+        col3.metric("Gameweek Accuracy", "⏳ Scheduled")
 
     def get_status_tag(r):
         act = r['actual_winner']
@@ -209,34 +239,44 @@ if not filtered_df.empty:
 
     display_df = pd.DataFrame()
     display_df['No.'] = filtered_df['day_no']
-    display_df['Match Date'] = filtered_df['match_date']
-    display_df['Hit Status'] = filtered_df.apply(get_status_tag, axis=1)
-    display_df['Home Team'] = filtered_df.apply(lambda r: f"{r['home_team']} ({r['home_total_wuv']:.2f} WUV)" if pd.notna(r.get('home_total_wuv')) else r['home_team'], axis=1)
-    display_df['Away Team'] = filtered_df.apply(lambda r: f"{r['away_team']} ({r['away_total_wuv']:.2f} WUV)" if pd.notna(r.get('away_total_wuv')) else r['away_team'], axis=1)
-    display_df['Predicted Winner'] = filtered_df['predicted_winner']
+    display_df['Match Time (US Eastern)'] = filtered_df.apply(
+        lambda r: r['match_date_et'] if ('match_date_et' in r and pd.notna(r['match_date_et']) and r['match_date_et'] != '') else r['match_date'], axis=1
+    )
+    display_df['Match Time (KST)'] = filtered_df.apply(
+        lambda r: r['match_date_kst'] if ('match_date_kst' in r and pd.notna(r['match_date_kst']) and r['match_date_kst'] != '') else r['match_date'], axis=1
+    )
+    display_df['Home Team'] = filtered_df.apply(
+        lambda r: f"{r['home_team']} ({r['home_total_wuv']:.2f} WUV)" if pd.notna(r.get('home_total_wuv')) else r['home_team'], axis=1
+    )
+    display_df['Away Team'] = filtered_df.apply(
+        lambda r: f"{r['away_team']} ({r['away_total_wuv']:.2f} WUV)" if pd.notna(r.get('away_total_wuv')) else r['away_team'], axis=1
+    )
+    display_df['Predicted Outcome'] = filtered_df['predicted_winner']
+    display_df['3-Way Probability [Home% | Draw% | Away%]'] = filtered_df.apply(
+        lambda r: f"[{r['prob_home']:.1f}% | {r['prob_draw']:.1f}% | {r['prob_away']:.1f}%]", axis=1
+    )
+    display_df['Predicted Gap (ΔUV)'] = filtered_df['gap'].apply(lambda x: f"{x:+.2f}")
     display_df['Actual Result'] = filtered_df.apply(
         lambda r: f"{int(r['actual_score_home'])} : {int(r['actual_score_away'])} ({r['actual_winner']})" 
         if (pd.notna(r.get('actual_score_home')) and pd.notna(r.get('actual_winner')) and r['actual_winner'] not in ['', 'Postponed', 'Canceled']) 
         else (r['actual_winner'] if (pd.notna(r.get('actual_winner')) and r['actual_winner'] != '') else "Pending"), axis=1
     )
-    display_df['3-Way Probabilities [Home% | Draw% | Away%]'] = filtered_df.apply(
-        lambda r: f"[{r['prob_home']:.1f}% | {r['prob_draw']:.1f}% | {r['prob_away']:.1f}%]", axis=1
-    )
-    display_df['Predicted Gap (ΔWUV)'] = filtered_df['gap'].apply(lambda x: f"{x:+.2f}")
+    display_df['Accuracy Status'] = filtered_df.apply(get_status_tag, axis=1)
 
     # Set dynamic height to prevent inner vertical scrollbar
     calc_height = int((len(display_df) + 1) * 36 + 15)
     
     col_config = {
         "No.": st.column_config.Column(width="small"),
-        "Match Date": st.column_config.Column(width="small"),
-        "Hit Status": st.column_config.Column(width="small"),
+        "Match Time (US Eastern)": st.column_config.Column(width="medium"),
+        "Match Time (KST)": st.column_config.Column(width="medium"),
         "Home Team": st.column_config.Column(width="medium"),
         "Away Team": st.column_config.Column(width="medium"),
-        "Predicted Winner": st.column_config.Column(width="medium"),
+        "Predicted Outcome": st.column_config.Column(width="medium"),
+        "3-Way Probability [Home% | Draw% | Away%]": st.column_config.Column(width="medium"),
+        "Predicted Gap (ΔUV)": st.column_config.Column(width="small"),
         "Actual Result": st.column_config.Column(width="medium"),
-        "3-Way Probabilities [Home% | Draw% | Away%]": st.column_config.Column(width="medium"),
-        "Predicted Gap (ΔWUV)": st.column_config.Column(width="small"),
+        "Accuracy Status": st.column_config.Column(width="small"),
     }
     
     st.dataframe(display_df, height=calc_height, column_config=col_config, hide_index=True, use_container_width=True)
