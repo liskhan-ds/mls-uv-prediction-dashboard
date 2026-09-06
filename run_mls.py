@@ -401,7 +401,7 @@ def populate_rosters_db(conn):
     conn.commit()
     print(f"✅ rosters table updated: {count} players saved (2026 Season)")
 
-def run_pipeline():
+def run_pipeline(mode="all"):
     url = "https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=20260201-20261130&limit=1000"
     headers = {"User-Agent": "Mozilla/5.0"}
     
@@ -419,17 +419,11 @@ def run_pipeline():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    cursor.execute("DROP TABLE IF EXISTS predictions")
-    cursor.execute("DROP TABLE IF EXISTS schedules")
-    
     # Ensure init_mls_db tables exist with updated schema
     import init_mls_db
     init_mls_db.create_tables()
     
     populate_rosters_db(conn)
-    
-    cursor.execute("DELETE FROM predictions")
-    cursor.execute("DELETE FROM schedules")
     
     events.sort(key=lambda x: x["date"])
     
@@ -496,49 +490,94 @@ def run_pipeline():
         else:
             act_winner = None
             
-        pred = get_match_prediction(h_team_raw, a_team_raw)
-        pred_winner = pred["winner"]
-        
-        if is_completed and act_winner is not None:
-            if (act_winner == pred_winner) or (h_team in act_winner and h_team in pred_winner) or (a_team in act_winner and a_team in pred_winner):
-                is_corr = 1
-            else:
-                is_corr = 0
-        else:
-            is_corr = None
-            
         mid = f"2026_MLS_{idx}"
         
-        cursor.execute("""
-        INSERT INTO predictions (
-            match_id, round_name, home_team, away_team, match_date,
-            match_date_et, match_date_kst,
-            home_wuv, away_wuv, home_total_wuv, away_total_wuv,
-            gap, predicted_winner, prob_home, prob_draw, prob_away,
-            score_home, score_away,
-            actual_score_home, actual_score_away, actual_winner, is_correct
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            mid, week_label, h_team, a_team, date_raw[:10],
-            match_date_et, match_date_kst,
-            pred["home_wuv"]["team_wuv"], pred["away_wuv"]["team_wuv"], pred["h_total"], pred["a_total"],
-            pred["gap"], pred_winner, pred["p_home"], pred["p_draw"], pred["p_away"],
-            pred["sc_h"], pred["sc_a"],
-            act_sc_h, act_sc_a, act_winner, is_corr
-        ))
+        cursor.execute("SELECT predicted_winner FROM predictions WHERE match_id = ?", (mid,))
+        existing = cursor.fetchone()
         
-        cursor.execute("""
-        INSERT INTO schedules (
-            match_id, week_name, match_date, home_team, away_team, status, season
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            mid, week_label, date_raw[:10], h_team, a_team, status_type, 2026
-        ))
+        if existing:
+            pred_winner = existing[0]
+            if mode in ["score", "all"]:
+                if is_completed and act_winner is not None:
+                    if (act_winner == pred_winner) or (h_team in act_winner and h_team in pred_winner) or (a_team in act_winner and a_team in pred_winner):
+                        is_corr = 1
+                    else:
+                        is_corr = 0
+                else:
+                    is_corr = None
+                    
+                cursor.execute("""
+                UPDATE predictions SET
+                    match_date_et = ?,
+                    match_date_kst = ?,
+                    actual_score_home = ?,
+                    actual_score_away = ?,
+                    actual_winner = ?,
+                    is_correct = ?
+                WHERE match_id = ?
+                """, (match_date_et, match_date_kst, act_sc_h, act_sc_a, act_winner, is_corr, mid))
+            
+            if mode in ["predict", "all"]:
+                pred = get_match_prediction(h_team_raw, a_team_raw)
+                pred_winner = pred["winner"]
+                cursor.execute("""
+                UPDATE predictions SET
+                    home_wuv = ?, away_wuv = ?, home_total_wuv = ?, away_total_wuv = ?,
+                    gap = ?, predicted_winner = ?, prob_home = ?, prob_draw = ?, prob_away = ?,
+                    score_home = ?, score_away = ?
+                WHERE match_id = ?
+                """, (
+                    pred["home_wuv"]["team_wuv"], pred["away_wuv"]["team_wuv"], pred["h_total"], pred["a_total"],
+                    pred["gap"], pred_winner, pred["p_home"], pred["p_draw"], pred["p_away"],
+                    pred["sc_h"], pred["sc_a"], mid
+                ))
+        else:
+            pred = get_match_prediction(h_team_raw, a_team_raw)
+            pred_winner = pred["winner"]
+            
+            if is_completed and act_winner is not None:
+                if (act_winner == pred_winner) or (h_team in act_winner and h_team in pred_winner) or (a_team in act_winner and a_team in pred_winner):
+                    is_corr = 1
+                else:
+                    is_corr = 0
+            else:
+                is_corr = None
+                
+            cursor.execute("""
+            INSERT INTO predictions (
+                match_id, round_name, home_team, away_team, match_date,
+                match_date_et, match_date_kst,
+                home_wuv, away_wuv, home_total_wuv, away_total_wuv,
+                gap, predicted_winner, prob_home, prob_draw, prob_away,
+                score_home, score_away,
+                actual_score_home, actual_score_away, actual_winner, is_correct
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                mid, week_label, h_team, a_team, date_raw[:10],
+                match_date_et, match_date_kst,
+                pred["home_wuv"]["team_wuv"], pred["away_wuv"]["team_wuv"], pred["h_total"], pred["a_total"],
+                pred["gap"], pred_winner, pred["p_home"], pred["p_draw"], pred["p_away"],
+                pred["sc_h"], pred["sc_a"],
+                act_sc_h, act_sc_a, act_winner, is_corr
+            ))
+            
+            cursor.execute("""
+            INSERT OR REPLACE INTO schedules (
+                match_id, week_name, match_date, home_team, away_team, status, season
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                mid, week_label, date_raw[:10], h_team, a_team, status_type, 2026
+            ))
 
     conn.commit()
     conn.close()
     print(f"✅ 2026 MLS Pipeline Complete! {len(events)} matches processed with US Eastern & KST times.")
 
 if __name__ == "__main__":
-    print("🚀 2026 MLS AI Match Prediction Pipeline starting...", flush=True)
-    run_pipeline()
+    import argparse
+    parser = argparse.ArgumentParser(description="MLS Pipeline Runner")
+    parser.add_argument("--mode", choices=["predict", "score", "all"], default="all", help="Pipeline execution mode")
+    args = parser.parse_args()
+
+    print(f"🚀 2026 MLS AI Match Prediction Pipeline starting (Mode: {args.mode})...", flush=True)
+    run_pipeline(mode=args.mode)
