@@ -20,50 +20,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Unified Top Navigation Bar (7 Sports: NBA, MLB, EPL, La Liga, NHL, NFL, MLS)
-nav_col1, nav_col2, nav_col3, nav_col4, nav_col5, nav_col6, nav_col7 = st.columns(7)
-with nav_col1:
-    st.link_button(
-        "🏀 NBA ↗", 
-        "https://nba-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col2:
-    st.link_button(
-        "⚾ MLB ↗", 
-        "https://mlb-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col3:
-    st.link_button(
-        "⚽ EPL ↗", 
-        "https://epl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col4:
-    st.link_button(
-        "⚽ La Liga ↗", 
-        "https://llg-uv-prediction.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col5:
-    st.link_button(
-        "🏒 NHL ↗", 
-        "https://nhl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col6:
-    st.link_button(
-        "🏈 NFL ↗", 
-        "https://nfl-uv-prediction-dashboard.streamlit.app/",
-        use_container_width=True
-    )
-with nav_col7:
-    st.button(
-        "⚽ MLS (Current)", 
-        disabled=True,
-        use_container_width=True
-    )
+from common_nav import render_common_nav
+
+# Top Navigation Bar
+render_common_nav("MLS")
 
 st.divider()
 
