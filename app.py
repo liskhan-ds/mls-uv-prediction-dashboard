@@ -166,7 +166,7 @@ if not stats_df.empty:
         axis=1
     )
 
-    round_stats_chart = round_stats.tail(12)
+    round_stats_chart = round_stats.tail(7)
 
     base = alt.Chart(round_stats_chart).encode(
         x=alt.X(group_col, title='MLS Gameweek', sort=list(round_stats_chart[group_col]))
